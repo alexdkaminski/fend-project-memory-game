@@ -1,4 +1,5 @@
 # Memory Game Project
+This memory game project was created as part of the Udacity Front-end developer nanodegree. It is also my first project as part of #100daysofcode.
 
 ## Table of Contents
 
