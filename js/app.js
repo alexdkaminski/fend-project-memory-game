@@ -6,17 +6,18 @@
 const cards = ['diamond', 'paper-plane-o', 'anchor', 'bolt', 'cube', 'leaf', 'bicycle', 'bomb', 'diamond', 'paper-plane-o', 'anchor', 'bolt', 'cube', 'leaf', 'bicycle', 'bomb']
 
 // Const variables
-const moves = document.getElementsByClassName('moves')[0];
-const deck = document.getElementsByClassName('deck')[0];
-const restart = document.getElementsByClassName('restart')[0];
-const star3 = document.getElementsByClassName('fa fa-star')[2];
-const star2 = document.getElementsByClassName('fa fa-star')[1];
-const timerDisplay = document.getElementsByClassName('seconds')[0];
+const MOVES = document.getElementsByClassName('moves')[0];
+const DECK = document.getElementsByClassName('deck')[0];
+const RESTART = document.getElementsByClassName('restart')[0];
+const STAR2 = document.getElementsByClassName('fa fa-star')[1];
+const STAR3 = document.getElementsByClassName('fa fa-star')[2];
+const TIMER_DISPLAY = document.getElementsByClassName('seconds')[0];
 
 // Other variables
 let openCards = [];
 let matchCount = 0;
 let moveCount = 0;
+let starCount = 3;
 let timerStarted = false;
 let seconds = 0;
 let timer;
@@ -28,9 +29,11 @@ let timer;
  *   - add each card's HTML to the page
  */
 
+//Initialise the game
 initGame();
 
 function initGame() {
+	// Reset values to defaults, this is used in case the game is restarted
 	openCards = [];
 	matchCount = 0;
 	moveCount = 0;
@@ -40,6 +43,7 @@ function initGame() {
 	addEventListeners();
 }
 
+// Shuffle and display the cards
 function displayCards(cards) {
 	shuffle(cards);
 	cards.forEach(card => {
@@ -48,7 +52,7 @@ function displayCards(cards) {
 		let li = document.createElement('li');
 		li.className = 'card';
 		li.appendChild(i);
-		deck.appendChild(li);
+		DECK.appendChild(li);
 	})
 }
 
@@ -68,14 +72,14 @@ function shuffle(array) {
 
 // Set up the event listener for each card
 function addEventListeners () {
-	deck.childNodes.forEach((card) => {
+	DECK.childNodes.forEach((card) => {
 		card.addEventListener('click', (e) => {
 			if (timerStarted == false) {
 				startTimer();
 			}
-			let card = "";
+			let card = '';
 			// Set card to parent in case user clicks icon instead of card on second click
-			if (e.target.nodeName == "I") {
+			if (e.target.nodeName == 'I') {
 				card = e.target.parentNode;
 			} else {
 				card = e.target;
@@ -96,7 +100,7 @@ function displayCard(card) {
 // Add the card to a *list* of "open" cards
 function checkForMatch(card) {
 		openCards.push(card);
-		// check to see if the two cards match
+		// Check to see if the two cards match
 		if (openCards.length == 2) {
 			if (openCards[0].children[0].classList[1].substr(3) == openCards[1].children[0].classList[1].substr(3)) {
 				cardMatch();
@@ -112,7 +116,6 @@ function cardMatch() {
 		card.classList.remove('open', 'show');
 		card.classList.add('match');
 	})
-		let cardSymbol = openCards[0].children[0].classList[1].substr(3);
 		openCards = [];
 		updateMoveCount();
 		updateMatchCount();
@@ -131,13 +134,17 @@ function cardNoMatch() {
 // Increment the move counter and display it on the page
 function updateMoveCount() {
 	moveCount += 1;
-	if (moveCount == 20) {
-		star3.style.display = "none";
+	if (moveCount == 15) {
+		starCount = --starCount;
+		console.log(starCount);
+		STAR3.style.display = 'none';
 	}
-	if (moveCount == 40) {
-		star2.style.display = "none";
+	if (moveCount == 25) {
+		starCount = --starCount;
+		console.log(starCount);
+		STAR2.style.display = 'none';
 	}
-	moves.innerHTML = moveCount;
+	MOVES.innerHTML = moveCount;
 }
 
 // If all cards have matched, display a message with the final score
@@ -149,30 +156,49 @@ function updateMatchCount() {
 	}
 }
 
+// Show the score
 function showScore() {
-	swal("Good job, you won!", `In ${moveCount} turns and ${seconds} seconds`, "success");
+	// Call sweet alert to display popup
+	swal('Good job, you won! ', `In ${moveCount} turns and ${seconds} seconds`, 'success');
+	createStarRating();
 }
 
-// Restart game
-restart.addEventListener('click', () => {
-	deck.innerHTML = '';
-	star2.style.display = "inline-block";
-	star3.style.display = "inline-block";
+// Display the star rating on the score alert
+function createStarRating() {
+	for (let i = 0; i < starCount; i++) {
+		const STAR_RATING_LI = document.createElement('li');
+		const STAR_RATING_I = document.createElement('i');
+		const SWAL_TITLE = document.getElementsByClassName('swal-title')[0];
+		const STAR_RATING_UI = document.createElement('ul');
+		STAR_RATING_UI.classList.add('stars');
+		STAR_RATING_I.classList.add('fa', 'fa-star');
+		STAR_RATING_LI.appendChild(STAR_RATING_I);
+		STAR_RATING_UI.appendChild(STAR_RATING_LI);
+		SWAL_TITLE.appendChild(STAR_RATING_UI);
+	}
+}
+
+// Restart the game
+RESTART.addEventListener('click', () => {
+	DECK.innerHTML = '';
+	STAR2.style.display = 'inline-block';
+	STAR3.style.display = 'inline-block';
 	stopTimer();
-	timerDisplay.innerHTML = '';
-	moves.innerHTML = '0';
+	TIMER_DISPLAY.innerHTML = '';
+	MOVES.innerHTML = '0';
 	initGame();
 })
 
-// Timer
+// Start the timer
 function startTimer() {
 	timerStarted = true;
 	timer = setInterval( () => {
 		seconds++;
-		timerDisplay.innerHTML = `Timer: ${seconds} seconds`;
+		TIMER_DISPLAY.innerHTML = `Timer: ${seconds} seconds`;
 }, 1000);
 }
 
+// Stop the timer
 function stopTimer() {
 	clearInterval(timer);
 }
